@@ -136,7 +136,7 @@
     <ResourceCompile Include="ArpScanne.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="F:\ico131.ico" />
+    <Image Include="..\..\Icones\002.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

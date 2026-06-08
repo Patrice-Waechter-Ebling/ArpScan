@@ -34,7 +34,7 @@ unsigned long status = 0;
 PMIB_IPNET_TABLE2 pipTable = NULL;
 MIB_IPNET_ROW2 ipRow;
 
-void AspectPowerShellConsole()
+static void AspectPowerShellConsole()
 {
     char fill = (char)0x00;
     COORD tl = { 0,0 };
@@ -47,7 +47,7 @@ void AspectPowerShellConsole()
     FillConsoleOutputAttribute(console, s.wAttributes, cells, tl, &written);
     SetConsoleCursorPosition(console, tl);
 }
-void PurgerTableARP() {
+static void PurgerTableARP() {
     status = GetIpNetTable2(AF_INET, &pipTable);
     if (status != NO_ERROR) {
         printf("IPv4 table a retourné %ld comme erreur\n", status);
@@ -61,7 +61,7 @@ void PurgerTableARP() {
     pipTable = NULL;
 
 }
-void GetClasseIP(char* Segment) {
+static void GetClasseIP(char* Segment) {
     char classes[5] = { 'A','B','C','D','E' };
     for (int x = 0; x < 5; x++) {
         if (Segment[x] == '.') {
@@ -80,7 +80,7 @@ void GetClasseIP(char* Segment) {
         }
     }
 }
-int scanneIPv4(char* argv)
+static int scanneIPv4(char* argv)
 {
     struct in_addr addr;
     WSADATA wsaData;
@@ -152,18 +152,18 @@ int scanneIPv4(char* argv)
      }
     return 1;
 }
-void DecodeInfo() 
+static void DecodeInfo()
 {
     switch (pipTable->Table[i].InterfaceLuid.Info.IfType) {
         case IF_TYPE_OTHER:printf("Inconnu "); break;
         case IF_TYPE_ETHERNET_CSMACD:printf("Ethernet "); break;
-        case IF_TYPE_ISO88025_TOKENRING:printf("Token ring "); break;
+        case IF_TYPE_ISO88025_TOKENRING:printf("Jeton en anneau "); break;
         case IF_TYPE_PPP:printf("PPP "); break;
-        case IF_TYPE_SOFTWARE_LOOPBACK:printf("Software loopback "); break;
+        case IF_TYPE_SOFTWARE_LOOPBACK:printf("Boucle logicielle "); break;
         case IF_TYPE_ATM:printf("ATM "); break;
         case IF_TYPE_IEEE80211:printf("802.11 WiFi "); break;
         case IF_TYPE_TUNNEL:printf("Tunnel ");break;
-        case IF_TYPE_IEEE1394:printf("IEEE 1394 (Firewire) ");break;
+        case IF_TYPE_IEEE1394:printf("IEEE 1394 ");break;
         default:
             printf("Unknown: %ld\n",
                 pipTable->Table[i].InterfaceLuid.Info.IfType);
@@ -178,14 +178,13 @@ void DecodeInfo()
         }
         printf("\n%lu octets ", pipTable->Table[i].PhysicalAddressLength);
         scanneIPv4(inet_ntoa(pipTable->Table[i].Address.Ipv4.sin_addr));
-
 }
 int main()
 {
     AspectPowerShellConsole();
-    SetConsoleTitleA("Explorateur reseau LAN v0.2");
+    SetConsoleTitleA("Explorateur reseau LAN v0.4");
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), BACKGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-    printf("Explorateur reseau LAN v0.2\n%c Patrice Waechter-Ebling 2022-2025\n", 0xb8);
+    printf("Explorateur reseau LAN v0.4\n%c Patrice Waechter-Ebling 2022-2026\n", 0xb8);
     PurgerTableARP();
     status = GetIpNetTable2(AF_INET, &pipTable);
     if (status != NO_ERROR) {
@@ -193,7 +192,6 @@ int main()
         exit(1);
     }
     printf("Il y a %d entrées dans la table IPv4.\n\n", pipTable->NumEntries);
-
     for (i = 0; (unsigned)i < pipTable->NumEntries; i++) {
         printf("IPv4 %s ", inet_ntoa(pipTable->Table[i].Address.Ipv4.sin_addr));
         switch (pipTable->Table[i].State) {
@@ -207,5 +205,4 @@ int main()
     FreeMibTable(pipTable);
     pipTable = NULL;
     exit(0);
-
 }
